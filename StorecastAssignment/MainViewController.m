@@ -113,48 +113,16 @@ static int pagesNumber = 0;
     
             NSDictionary *displaySize = [[tempDictionary objectForKey:@"display_sizes"] objectAtIndex:0];
             NSString *imageUri = [displaySize objectForKey:@"uri"];
-            //NSURL *imageURL = [NSURL URLWithString:[imageUri stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-            //NSData* imageData = [NSData dataWithContentsOfURL:@"http://cache4.asset-cache.net/xt/181264085.jpg?v=1&g=fs2|0|editorial148|64|085&s=1&b=QQ=="];
-    
-            //[cell.image  setImageWithURL:[NSURL URLWithString:imageUri] placeholderImage:nil];
 
-  
+            NSURL *url = [NSURL URLWithString:[imageUri stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     
-    NSURL *url = [NSURL URLWithString:[@"http://cache2.asset-cache.net/xt/614020370.jpg?v=1&g=fs1|0|EPL|20|370&s=1&b=RjI4" stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            NSData *data = [[NSData alloc] initWithContentsOfURL:url];
     
-    NSData *data = [[NSData alloc] initWithContentsOfURL:url];
+            UIImage *tmpImage = [[UIImage alloc] initWithData:data];
     
-    NSError* error = nil;
-    NSData* imageData = [NSData dataWithContentsOfURL:url options:NSDataReadingUncached error:&error];
-    if (error) {
-        NSLog(@"%@", [error localizedDescription]);
-    } else {
-        NSLog(@"Data has loaded successfully.");
-    }
+            cell.image.image = tmpImage;
 
-    
-    UIImage *tmpImage = [[UIImage alloc] initWithData:data];
-    
-    cell.image.image = tmpImage;
-    /*dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        
-        
-        NSError* error = nil;
-        NSData* imageData = [NSData dataWithContentsOfURL:imageURL options:NSDataReadingUncached error:&error];
-        if (error) {
-            NSLog(@"%@", [error localizedDescription]);
-        } else {
-            NSLog(@"Data has loaded successfully.");
-        }
-        //NSData *imageData = [NSData dataWithContentsOfFile:imageURL];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // Update the UI
-            UIImage *image = [UIImage imageWithData:imageData];
-            cell.image.image = image;        });
-    });*/
             return cell;
-        //}
 }
 
 
