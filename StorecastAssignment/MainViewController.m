@@ -13,6 +13,7 @@
 
 static int page = 1;
 static int pagesNumber = 0;
+static BOOL isSearch;
 
 @interface MainViewController ()
 
@@ -45,7 +46,25 @@ static int pagesNumber = 0;
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     [manager.requestSerializer setValue:@"4x3mqfykgft2uj2zynnw4b9w" forHTTPHeaderField:@"Api-Key"];
     
- 
+    if(isSearch){
+        NSString *requestURL = [NSString stringWithFormat:@"https://api.gettyimages.com:443/v3/search/images?page=%ld&page_size=10&phrase=%@", (long)page, self.searchedText];
+        [manager GET:requestURL
+          parameters:nil
+             success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                 [self.searchedImagesArray addObjectsFromArray:(NSArray *) responseObject];
+                 
+                 NSLog(@"The Array: %@",responseObject);
+                 
+                 [self.tableView reloadData];
+                 
+                 NSDictionary *responseHeader = operation.response.allHeaderFields;
+                 pagesNumber = (int)[[responseHeader objectForKey:@"x-pagination-page-count"] integerValue];
+             } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                 NSLog(@"Request Failed: %@, %@", error, error.userInfo);
+             }];
+        
+    } else{
+
         NSString *requestURL = [NSString stringWithFormat:@"https://api.gettyimages.com:443/v3/search/images?page=%ld&page_size=10&phrase=mobile", (long)page];
         [manager GET:requestURL
           parameters:nil
@@ -60,7 +79,7 @@ static int pagesNumber = 0;
              } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                  NSLog(@"Request Failed: %@, %@", error, error.userInfo);
              }];
-    
+    }
 }
 
 #pragma mark - Table view data source
@@ -125,5 +144,54 @@ static int pagesNumber = 0;
             return cell;
 }
 
+-(void)searchBar:(UISearchBar*)searchBar textDidChange:(NSString*)text
+{
+    page = 1;
+    
+    if(text.length == 0)
+    {
+        //isFiltered = FALSE;
+        self.searchedText = @"";
+        isSearch = false;
+        [self.tableView reloadData];
+        
+    }
+    else
+    {
+        isSearch = true;
+        
+        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+        [manager.requestSerializer setValue:@"4x3mqfykgft2uj2zynnw4b9w" forHTTPHeaderField:@"Api-Key"];
+
+        if(![self.searchedText isEqualToString:text]){
+            self.searchedImagesArray  = [NSMutableArray new];
+        }
+        
+        self.searchedText = text;
+        self.searchedText = [self.searchedText stringByReplacingOccurrencesOfString:@" " withString:@"+"];
+        
+        NSString *requestURL = [NSString stringWithFormat:@"https://api.gettyimages.com:443/v3/search/images?page=1&page_size=10&phrase=%@", self.searchedText];
+        [manager GET:requestURL
+          parameters:nil
+             success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                 //self.searchedMoviesArray = (NSMutableArray *) responseObject;
+                 [self.searchedImagesArray addObjectsFromArray:(NSArray *) responseObject];
+                 
+                 NSLog(@"The Array: %@",responseObject);
+                 
+                 [self.tableView reloadData];
+             }
+             failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                 NSLog(@"Request Failed: %@, %@", error, error.userInfo);
+             }];
+    }
+    
+    //[self.tableView reloadData];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar{
+    isSearch = false;
+    
+}
 
 @end
