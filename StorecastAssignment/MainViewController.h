@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MainViewController : UIViewController<UITableViewDelegate>
+@interface MainViewController : UIViewController<UITableViewDelegate, UISearchBarDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
 
 @end

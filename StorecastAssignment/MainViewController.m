@@ -28,7 +28,8 @@ static BOOL isSearch;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.tableView.contentInset = UIEdgeInsetsMake(20, 0, 0, 0);
+    
+    //self.tableView.contentInset = UIEdgeInsetsMake(20, 0, 0, 0);
     self.imagesArray = [NSMutableArray new];
     self.searchedImagesArray = [NSMutableArray new];
     [self makeRequests:page];
@@ -94,16 +95,24 @@ static BOOL isSearch;
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     
-    // Return the number of rows in the section.
-        //if(page == pagesNumber){
+    if(isSearch){
+        if(page == pagesNumber){
+            return [self.searchedImagesArray count];
+        } else{
+            return [self.searchedImagesArray count] + 1;
+        }
+    } else {
+        if(page == pagesNumber){
             return [self.imagesArray count];
-        //} else{
-        //    return [self.imagesArray count] + 1;
-        //}
+        } else{
+            return [self.imagesArray count] + 1;
+        }
+    }
+
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.row == [self.imagesArray count] - 1 || indexPath.row == [self.imagesArray count] - 1) {
+    if (indexPath.row == [self.imagesArray count] - 1 || indexPath.row == [self.searchedImagesArray count] - 1) {
         if(page < pagesNumber){
             page++;
             [self makeRequests:page];
@@ -113,15 +122,15 @@ static BOOL isSearch;
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
-        /*if (indexPath.row == [self.imagesArray count]) {
+    if(!isSearch){
+        if (indexPath.row == [self.imagesArray count]) {
             
             UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"LoadingCell" forIndexPath:indexPath];
             UIActivityIndicatorView *activityIndicator = (UIActivityIndicatorView *)[cell.contentView viewWithTag:100];
             [activityIndicator startAnimating];
             
             return cell;
-        } else {*/
+        } else{
             static NSString *CellIdentifier = @"Cell";
             ImageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
             
@@ -142,6 +151,39 @@ static BOOL isSearch;
             cell.image.image = tmpImage;
 
             return cell;
+       }
+    }else{
+        if (indexPath.row == [self.searchedImagesArray count]) {
+            
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"LoadingCell" forIndexPath:indexPath];
+            UIActivityIndicatorView *activityIndicator = (UIActivityIndicatorView *)[cell.contentView viewWithTag:100];
+            [activityIndicator startAnimating];
+            
+            return cell;
+        } else{
+            static NSString *CellIdentifier = @"Cell";
+            ImageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+            
+            NSDictionary *tempDictionary= [self.searchedImagesArray objectAtIndex:indexPath.row];
+            
+            cell.imageId.text    = [tempDictionary objectForKey:@"id"];
+            cell.imageTitle.text = [tempDictionary objectForKey:@"title"];
+            
+            NSDictionary *displaySize = [[tempDictionary objectForKey:@"display_sizes"] objectAtIndex:0];
+            NSString *imageUri = [displaySize objectForKey:@"uri"];
+            
+            NSURL *url = [NSURL URLWithString:[imageUri stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            
+            NSData *data = [[NSData alloc] initWithContentsOfURL:url];
+            
+            UIImage *tmpImage = [[UIImage alloc] initWithData:data];
+            
+            cell.image.image = tmpImage;
+            
+            return cell;
+        }
+
+    }
 }
 
 -(void)searchBar:(UISearchBar*)searchBar textDidChange:(NSString*)text
