@@ -1,4 +1,3 @@
-Overview
 An application showing a view containing a list of items representing images.
 The data for the content are obtained by calling the Getty Images API.
 With infinite scrolling pagination.
