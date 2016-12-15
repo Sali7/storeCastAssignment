@@ -10,4 +10,10 @@
 
 @interface Image : NSObject
 
+@property(nonatomic, retain)NSString *imageId;
+@property(nonatomic, retain)NSString *imageTitle;
+@property(nonatomic, retain)NSURL *imageUrl;
+
+- (id)initWithId:(NSString*)imageId title:(NSString*)imageTitle url:(NSURL*)imageUrl;
+
 @end
