@@ -40,6 +40,7 @@ static BOOL isSearch;
 {
     [super didReceiveMemoryWarning];
 }
+//test changes
 
 -(void)makeRequests:(NSInteger)page
 {
